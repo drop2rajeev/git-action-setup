@@ -1,10 +1,10 @@
-name: HTML Syntax Check (No Node)
+name: HTML Syntax Check
 
 on:
   push:
-    branches: ["**"] # Trigger on push to any branch
+    branches: ["**"]
   pull_request:
-    branches: ["**"] # Trigger on PR to any branch
+    branches: ["**"]
 
 jobs:
   lint-html:
@@ -19,4 +19,14 @@ jobs:
 
       - name: Check HTML syntax using tidy
         run: |
-          find . -name "*.html" -exec tidy -errors -q {} \; || exit 1
+          echo "Checking HTML files..."
+          FAIL=0
+          for file in $(find . -name "*.html"); do
+            echo "Checking $file"
+            tidy -qe "$file"
+            if [ $? -ne 0 ]; then
+              echo "HTML errors found in $file"
+              FAIL=1
+            fi
+          done
+          exit $FAIL
